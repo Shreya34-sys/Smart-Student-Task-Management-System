@@ -1,0 +1,103 @@
+{
+  "hash": "7f57d497",
+  "configHash": "41f12c63",
+  "lockfileHash": "d7f63b6c",
+  "browserHash": "4585a3a6",
+  "optimized": {
+    "react": {
+      "src": "../../frontend/node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "d89dc78d",
+      "needsInterop": true
+    },
+    "react-dom": {
+      "src": "../../frontend/node_modules/react-dom/index.js",
+      "file": "react-dom.js",
+      "fileHash": "d5b5b662",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../frontend/node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "6b5e4f7f",
+      "needsInterop": true
+    },
+    "react/jsx-runtime": {
+      "src": "../../frontend/node_modules/react/jsx-runtime.js",
+      "file": "react_jsx-runtime.js",
+      "fileHash": "d93944f3",
+      "needsInterop": true
+    },
+    "@hello-pangea/dnd": {
+      "src": "../../frontend/node_modules/@hello-pangea/dnd/dist/dnd.esm.js",
+      "file": "@hello-pangea_dnd.js",
+      "fileHash": "0b68d79d",
+      "needsInterop": false
+    },
+    "@react-oauth/google": {
+      "src": "../../frontend/node_modules/@react-oauth/google/dist/index.esm.js",
+      "file": "@react-oauth_google.js",
+      "fileHash": "4e866838",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../frontend/node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "80e07e78",
+      "needsInterop": false
+    },
+    "framer-motion": {
+      "src": "../../frontend/node_modules/framer-motion/dist/es/index.mjs",
+      "file": "framer-motion.js",
+      "fileHash": "6e767d56",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../frontend/node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "fc7ff608",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../frontend/node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "d999414d",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../frontend/node_modules/react-router-dom/dist/index.js",
+      "file": "react-router-dom.js",
+      "fileHash": "ca46d0f3",
+      "needsInterop": false
+    },
+    "recharts": {
+      "src": "../../frontend/node_modules/recharts/es6/index.js",
+      "file": "recharts.js",
+      "fileHash": "4acccabf",
+      "needsInterop": false
+    },
+    "socket.io-client": {
+      "src": "../../frontend/node_modules/socket.io-client/build/esm/index.js",
+      "file": "socket__io-client.js",
+      "fileHash": "f4aac5a9",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-TBWGJY5X": {
+      "file": "chunk-TBWGJY5X.js"
+    },
+    "chunk-LOOUW2SX": {
+      "file": "chunk-LOOUW2SX.js"
+    },
+    "chunk-G5UEBYRY": {
+      "file": "chunk-G5UEBYRY.js"
+    },
+    "chunk-ZJDDNRPA": {
+      "file": "chunk-ZJDDNRPA.js"
+    },
+    "chunk-G3PMV62Z": {
+      "file": "chunk-G3PMV62Z.js"
+    }
+  }
+}
