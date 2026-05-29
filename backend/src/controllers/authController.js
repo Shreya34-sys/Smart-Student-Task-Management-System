@@ -4,6 +4,9 @@ import { User } from "../models/User.js";
 import { AppError } from "../utils/AppError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { logActivity } from "../services/activityService.js";
+import { sendPasswordResetEmail } from "../services/emailService.js";
+import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 function signToken(userId) {
   return jwt.sign({ id: userId }, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
@@ -104,4 +107,111 @@ export const updateProfile = asyncHandler(async (req, res) => {
   }).select("-password");
 
   res.json({ success: true, user });
+});
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new AppError("Email is required", 400);
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(200).json({
+      success: true,
+      message: "If an account exists with that email, a password reset link has been sent."
+    });
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordExpire = new Date(Date.now() + 15 * 60 * 1000);
+  await user.save();
+
+  const resetUrl = `${env.clientUrl}/reset-password/${resetToken}`;
+
+  try {
+    await sendPasswordResetEmail({
+      to: user.email,
+      resetUrl,
+      expiresInMinutes: 15
+    });
+
+    await logActivity({
+      actor: user._id,
+      action: "forgot_password_requested",
+      entityType: "user",
+      entityId: user._id
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "If an account exists with that email, a password reset link has been sent."
+    });
+  } catch (error) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    throw new AppError("Error sending password reset email. Please try again later.", 500);
+  }
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password, confirmPassword } = req.body;
+
+  if (!token) {
+    throw new AppError("Reset token is required", 400);
+  }
+
+  if (!password || !confirmPassword) {
+    throw new AppError("Password and confirm password are required", 400);
+  }
+
+  if (password !== confirmPassword) {
+    throw new AppError("Passwords do not match", 400);
+  }
+
+  if (password.length < 6) {
+    throw new AppError("Password must be at least 6 characters long", 400);
+  }
+
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpire: { $gt: new Date() }
+  }).select("+password");
+
+  if (!user) {
+    throw new AppError("Invalid or expired reset token", 400);
+  }
+
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  await logActivity({
+    actor: user._id,
+    action: "password_reset",
+    entityType: "user",
+    entityId: user._id
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Password reset successfully. You can now log in with your new password."
+  });
 });

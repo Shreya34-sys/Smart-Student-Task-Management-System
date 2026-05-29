@@ -51,10 +51,15 @@ export default function Login() {
             Email
             <input className="input mt-1" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} required />
           </label>
-          <label className="text-sm font-semibold">
-            Password
+          <div>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold">Password</label>
+              <Link className="text-xs text-teal-200 hover:text-teal-100" to="/forgot-password">
+                Forgot password?
+              </Link>
+            </div>
             <input className="input mt-1" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required />
-          </label>
+          </div>
         </div>
         <button className="btn-primary mt-6 w-full" disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}

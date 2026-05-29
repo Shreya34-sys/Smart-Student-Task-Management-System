@@ -48,3 +48,14 @@ export function fetchInvite(token) {
 export function acceptInvite(token) {
   return request(() => api.post("/invites/accept", { token }), "Could not accept invite");
 }
+
+export function forgotPassword(data) {
+  return request(() => api.post("/auth/forgot-password", data), "Could not send reset link");
+}
+
+export function resetPassword(data) {
+  return request(() => api.post(`/auth/reset-password/${data.token}`, {
+    password: data.password,
+    confirmPassword: data.confirmPassword
+  }), "Could not reset password");
+}

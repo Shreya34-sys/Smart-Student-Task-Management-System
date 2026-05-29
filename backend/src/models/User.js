@@ -60,6 +60,16 @@ const userSchema = new mongoose.Schema(
     }],
     lastLoginAt: {
       type: Date
+    },
+    resetPasswordToken: {
+      type: String,
+      select: false,
+      sparse: true
+    },
+    resetPasswordExpire: {
+      type: Date,
+      select: false,
+      sparse: true
     }
   },
   { timestamps: true }
