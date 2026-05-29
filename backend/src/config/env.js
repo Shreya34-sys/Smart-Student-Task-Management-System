@@ -7,18 +7,26 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-const required = ["MONGODB_URI", "JWT_SECRET"];
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+const required = [
+  { key: "MONGO_URI or MONGODB_URI", value: mongoUri },
+  { key: "JWT_SECRET", value: process.env.JWT_SECRET }
+];
 
-for (const key of required) {
-  if (!process.env[key]) {
+for (const { key, value } of required) {
+  if (!value) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
+}
+
+if (process.env.NODE_ENV === "production" && !process.env.CLIENT_URL) {
+  throw new Error("Missing required environment variable: CLIENT_URL");
 }
 
 export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: process.env.PORT || 5000,
-  mongoUri: process.env.MONGODB_URI,
+  mongoUri,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   clientUrl: process.env.CLIENT_URL || "http://localhost:5173",

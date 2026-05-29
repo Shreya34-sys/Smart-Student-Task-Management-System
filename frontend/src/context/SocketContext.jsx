@@ -4,6 +4,11 @@ import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
 
 const SocketContext = createContext(null);
+const socketUrl = import.meta.env.VITE_SOCKET_URL;
+
+if (!socketUrl) {
+  throw new Error("Missing required frontend environment variable: VITE_SOCKET_URL");
+}
 
 export function SocketProvider({ children }) {
   const { user } = useAuth();
@@ -13,7 +18,7 @@ export function SocketProvider({ children }) {
   useEffect(() => {
     if (!user) return undefined;
 
-    const nextSocket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:5000", {
+    const nextSocket = io(socketUrl, {
       transports: ["websocket"]
     });
 

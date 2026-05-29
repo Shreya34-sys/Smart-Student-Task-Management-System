@@ -1,6 +1,7 @@
 import { Download, Loader2, Mail, Rows3, Search, SquareKanban, Upload } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api/axios";
+import { createTask, deleteTask as removeTask, fetchTasks, updateTask } from "../api/api";
 import KanbanBoard from "../components/KanbanBoard";
 import Skeleton from "../components/Skeleton";
 import TaskForm from "../components/TaskForm";
@@ -22,10 +23,10 @@ export default function Tasks() {
   const loadTasks = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await api.get("/tasks", { params: filters });
+      const data = await fetchTasks(filters);
       setTasks(data.tasks);
     } catch (error) {
-      showToast(error.response?.data?.message || "Could not load tasks", "error");
+      showToast(error.message || "Could not load tasks", "error");
     } finally {
       setLoading(false);
     }
@@ -53,16 +54,16 @@ export default function Tasks() {
     setSaving(true);
     try {
       if (selectedTask) {
-        await api.patch(`/tasks/${selectedTask._id}`, payload);
+        await updateTask(selectedTask._id, payload);
         showToast("Task updated");
       } else {
-        await api.post("/tasks", payload);
+        await createTask(payload);
         showToast("Task created");
       }
       setSelectedTask(null);
       await loadTasks();
     } catch (error) {
-      showToast(error.response?.data?.message || "Could not save task", "error");
+      showToast(error.message || "Could not save task", "error");
     } finally {
       setSaving(false);
     }
@@ -70,21 +71,21 @@ export default function Tasks() {
 
   const deleteTask = async (id) => {
     try {
-      await api.delete(`/tasks/${id}`);
+      await removeTask(id);
       showToast("Task deleted");
       setTasks((current) => current.filter((task) => task._id !== id));
     } catch (error) {
-      showToast(error.response?.data?.message || "Could not delete task", "error");
+      showToast(error.message || "Could not delete task", "error");
     }
   };
 
   const updateStatus = async (task, status) => {
     try {
-      const { data } = await api.patch(`/tasks/${task._id}`, { status });
+      const data = await updateTask(task._id, { status });
       setTasks((current) => current.map((item) => (item._id === task._id ? data.task : item)));
       showToast("Status updated");
     } catch (error) {
-      showToast(error.response?.data?.message || "Could not update status", "error");
+      showToast(error.message || "Could not update status", "error");
     }
   };
 

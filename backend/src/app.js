@@ -15,19 +15,15 @@ import teamRoutes from "./routes/teamRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 
 const app = express();
-const allowedOrigins = new Set([
-  env.clientUrl,
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://127.0.0.1:5173",
-  "http://127.0.0.1:5174"
-]);
+export const allowedOrigins = env.clientUrl
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(helmet());
 app.use(cors({
   origin(origin, callback) {
-    const isLocalVite = /^http:\/\/(localhost|127\.0\.0\.1):517\d$/.test(origin || "");
-    if (!origin || allowedOrigins.has(origin) || isLocalVite) return callback(null, true);
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true

@@ -1,4 +1,4 @@
-import app from "./app.js";
+import app, { allowedOrigins } from "./app.js";
 import fs from "fs";
 import http from "http";
 import { Server } from "socket.io";
@@ -14,7 +14,7 @@ async function startServer() {
   const server = http.createServer(app);
   const io = new Server(server, {
     cors: {
-      origin: [env.clientUrl, "http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"],
+      origin: allowedOrigins,
       credentials: true
     }
   });

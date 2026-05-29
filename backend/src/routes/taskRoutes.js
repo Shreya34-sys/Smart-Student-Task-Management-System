@@ -24,6 +24,6 @@ router.post("/email-summary", emailTaskSummary);
 router.route("/").get(getTasks).post(validateTask, createTask);
 router.post("/:id/attachments", upload.single("file"), uploadTaskFile);
 router.post("/:id/assign", assignTask);
-router.route("/:id").get(getTask).patch(updateTask).delete(deleteTask);
+router.route("/:id").get(getTask).put(updateTask).patch(updateTask).delete(deleteTask);
 
 export default router;

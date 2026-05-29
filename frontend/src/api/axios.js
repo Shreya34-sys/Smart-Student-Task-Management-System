@@ -1,7 +1,14 @@
 import axios from "axios";
 
+const baseURL = import.meta.env.VITE_API_URL;
+
+if (!baseURL) {
+  throw new Error("Missing required frontend environment variable: VITE_API_URL");
+}
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+  baseURL,
+  withCredentials: true
 });
 
 api.interceptors.request.use((config) => {
