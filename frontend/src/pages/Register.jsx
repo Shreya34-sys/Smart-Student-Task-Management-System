@@ -1,7 +1,7 @@
-import { GoogleLogin } from "@react-oauth/google";
 import { Loader2, UserPlus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 import { isGoogleOAuthConfigured } from "../config/oauth";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -9,7 +9,6 @@ import { passwordStrength } from "../utils/passwordStrength";
 
 export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", course: "", password: "", confirmPassword: "" });
-  const [googleLoading, setGoogleLoading] = useState(false);
   const { register, googleLogin, loading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -35,16 +34,13 @@ export default function Register() {
     }
   };
 
-  const handleGoogle = async (response) => {
-    setGoogleLoading(true);
+  const handleGoogle = async ({ accessToken, profile }) => {
     try {
-      await googleLogin(response.credential);
+      await googleLogin({ accessToken, profile });
       showToast("Account created with Google");
       navigate("/app");
     } catch (error) {
-      showToast(error.response?.data?.message || "Google signup is not configured", "error");
-    } finally {
-      setGoogleLoading(false);
+      showToast(error.response?.data?.message || "Google signup failed", "error");
     }
   };
 
@@ -91,9 +87,20 @@ export default function Register() {
           Create account
         </button>
         {isGoogleOAuthConfigured && (
-          <div className="mt-4 flex flex-col items-center gap-2">
-            <p className="text-xs font-semibold text-slate-300">{googleLoading ? "Connecting to Google..." : "or continue with Google"}</p>
-            <GoogleLogin onSuccess={handleGoogle} onError={() => showToast("Google signup failed", "error")} />
+          <div className="mt-5">
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-slate-600/60" />
+              <span className="text-xs font-semibold text-slate-400">or</span>
+              <div className="h-px flex-1 bg-slate-600/60" />
+            </div>
+            <div className="mt-4">
+              <GoogleAuthButton
+                onSuccess={handleGoogle}
+                onError={(msg) => showToast(msg, "error")}
+                label="Sign up with Google"
+                disabled={loading}
+              />
+            </div>
           </div>
         )}
         <p className="mt-4 text-center text-sm text-slate-300">
@@ -103,3 +110,4 @@ export default function Register() {
     </main>
   );
 }
+

@@ -111,3 +111,28 @@ export const acceptInvite = asyncHandler(async (req, res) => {
 
   res.json({ success: true, message: "Invite accepted", team });
 });
+
+export const getTeamInvites = asyncHandler(async (req, res) => {
+  const team = await Team.findOne({
+    _id: req.params.teamId,
+    $or: [{ owner: req.user._id }, { "members.user": req.user._id }]
+  });
+
+  if (!team) throw new AppError("Team not found or permission denied", 404);
+
+  const invites = await Invite.find({ projectId: team._id })
+    .populate("invitedBy", "name email")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  // Auto-expire pending invites that are past their expiresAt date
+  const now = Date.now();
+  const result = invites.map((invite) => {
+    if (invite.status === "pending" && new Date(invite.expiresAt).getTime() <= now) {
+      return { ...invite, status: "expired" };
+    }
+    return invite;
+  });
+
+  res.json({ success: true, invites: result });
+});

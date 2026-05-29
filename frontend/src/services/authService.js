@@ -38,8 +38,16 @@ export async function loginUser(payload) {
   return data.user;
 }
 
-export async function loginWithGoogle(credential) {
-  const { data } = await api.post("/auth/google", { credential });
+export async function loginWithGoogle(credentialOrPayload) {
+  // Support both legacy ID token flow and new access token flow
+  const payload = typeof credentialOrPayload === "string"
+    ? { credential: credentialOrPayload }
+    : {
+        accessToken: credentialOrPayload.accessToken,
+        profile: credentialOrPayload.profile
+      };
+
+  const { data } = await api.post("/auth/google", payload);
   saveSession(data);
   return data.user;
 }

@@ -1,9 +1,66 @@
-import { UserPlus, UsersRound } from "lucide-react";
+import { Clock, Mail, UserPlus, UsersRound } from "lucide-react";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "../api/axios";
+import { fetchTeamInvites } from "../api/api";
 import InviteTeammateModal from "../components/InviteTeammateModal";
+import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+
+/** Avatar circle — shows Google profile picture or initials with a fallback color */
+function MemberAvatar({ member }) {
+  const user = member.user || {};
+  const name = user.name || "?";
+  const initials = name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const color = user.avatarColor || "#14b8a6";
+
+  if (user.avatar) {
+    return (
+      <img
+        src={user.avatar}
+        alt={name}
+        className="h-9 w-9 rounded-full object-cover ring-2 ring-white/10"
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+
+  return (
+    <div
+      className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ring-2 ring-white/10"
+      style={{ backgroundColor: color }}
+    >
+      {initials}
+    </div>
+  );
+}
+
+/** Status badge for invite status */
+function StatusBadge({ status }) {
+  const styles = {
+    pending: "bg-amber-400/15 text-amber-300 border-amber-400/30",
+    accepted: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30",
+    expired: "bg-slate-400/15 text-slate-400 border-slate-400/30"
+  };
+
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${styles[status] || styles.pending}`}>
+      {status === "pending" && <Clock className="h-3 w-3" />}
+      {status}
+    </span>
+  );
+}
+
+/** Role badge for team members */
+function RoleBadge({ role, isOwner }) {
+  if (isOwner) {
+    return <span className="rounded-full bg-teal-400/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-teal-300 border border-teal-400/30">Owner</span>;
+  }
+  if (role === "lead") {
+    return <span className="rounded-full bg-blue-400/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-300 border border-blue-400/30">Lead</span>;
+  }
+  return <span className="rounded-full bg-slate-400/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 border border-slate-400/30">Member</span>;
+}
 
 export default function Teams() {
   const [teams, setTeams] = useState([]);
@@ -11,6 +68,8 @@ export default function Teams() {
   const [selectedTeam, setSelectedTeam] = useState("");
   const [creating, setCreating] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [pendingInvites, setPendingInvites] = useState([]);
+  const { user } = useAuth();
   const { showToast } = useToast();
 
   const loadTeams = async () => {
@@ -26,9 +85,23 @@ export default function Teams() {
     }
   };
 
+  const loadInvites = useCallback(async (teamId) => {
+    if (!teamId) return;
+    try {
+      const data = await fetchTeamInvites(teamId);
+      setPendingInvites(data.invites || []);
+    } catch {
+      setPendingInvites([]);
+    }
+  }, []);
+
   useEffect(() => {
     loadTeams();
   }, []);
+
+  useEffect(() => {
+    loadInvites(selectedTeam);
+  }, [selectedTeam, loadInvites]);
 
   const createTeam = async (event) => {
     event.preventDefault();
@@ -44,6 +117,11 @@ export default function Teams() {
     } finally {
       setCreating(false);
     }
+  };
+
+  const handleInviteSent = () => {
+    setInviteOpen(false);
+    loadInvites(selectedTeam);
   };
 
   return (
@@ -90,24 +168,64 @@ export default function Teams() {
             Invite teammate
           </button>
         </div>
+
+        {/* Pending Invites Section */}
+        {pendingInvites.length > 0 && (
+          <div className="glass rounded-lg p-5">
+            <div className="mb-4 flex items-center gap-3">
+              <Mail className="h-5 w-5 text-teal-600" />
+              <h2 className="text-lg font-black">Sent invites</h2>
+            </div>
+            <div className="space-y-2">
+              {pendingInvites.map((invite) => (
+                <div className="flex items-center justify-between rounded-lg bg-white/5 p-3 text-sm" key={invite._id}>
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">{invite.email}</p>
+                    <p className="text-xs text-slate-400">
+                      by {invite.invitedBy?.name || "Unknown"} · {new Date(invite.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <StatusBadge status={invite.status} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
+
       <section className="grid gap-4 md:grid-cols-2">
         {teams.map((team) => (
           <article className="glass rounded-lg p-5" key={team._id}>
-            <h3 className="text-xl font-black">{team.name}</h3>
+            <div className="mb-1 flex items-center justify-between">
+              <h3 className="text-xl font-black">{team.name}</h3>
+              <span className="rounded-full bg-teal-400/10 px-2.5 py-0.5 text-xs font-bold text-teal-300">
+                {(team.members?.length || 0)} {team.members?.length === 1 ? "member" : "members"}
+              </span>
+            </div>
             <p className="mt-1 text-sm text-slate-500 dark:text-neutral-400">{team.description || "No description"}</p>
             <div className="mt-4 space-y-2">
               {team.members?.map((member) => (
-                <div className="rounded-lg bg-white/70 p-3 text-sm dark:bg-neutral-800" key={member.user?._id || member.user}>
-                  <p className="font-bold">{member.user?.name || "Member"}</p>
-                  <p className="text-slate-500 dark:text-neutral-400">{member.user?.email} - {member.role}</p>
+                <div className="flex items-center gap-3 rounded-lg bg-white/5 p-3 text-sm" key={member.user?._id || member.user}>
+                  <MemberAvatar member={member} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-bold">{member.user?.name || "Member"}</p>
+                    <p className="truncate text-xs text-slate-400">{member.user?.email}</p>
+                  </div>
+                  <RoleBadge role={member.role} isOwner={team.owner === member.user?._id || team.owner?._id === member.user?._id} />
                 </div>
               ))}
             </div>
           </article>
         ))}
       </section>
-      <InviteTeammateModal open={inviteOpen} teams={teams} selectedTeam={selectedTeam} onTeamChange={setSelectedTeam} onClose={() => setInviteOpen(false)} />
+      <InviteTeammateModal
+        open={inviteOpen}
+        teams={teams}
+        selectedTeam={selectedTeam}
+        onTeamChange={setSelectedTeam}
+        onClose={handleInviteSent}
+      />
     </motion.div>
   );
 }
+

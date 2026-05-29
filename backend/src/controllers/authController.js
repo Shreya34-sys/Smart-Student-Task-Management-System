@@ -54,16 +54,49 @@ export const login = asyncHandler(async (req, res) => {
 });
 
 export const googleLogin = asyncHandler(async (req, res) => {
-  const { credential } = req.body;
-  if (!credential || !env.googleClientId) {
-    throw new AppError("Google OAuth is not configured", 400);
+  const { credential, accessToken, profile: clientProfile } = req.body;
+
+  if (!env.googleClientId) {
+    throw new AppError("Google OAuth is not configured on the server", 400);
   }
 
-  const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
-  const profile = await response.json();
+  let profile;
 
-  if (!response.ok || profile.aud !== env.googleClientId) {
-    throw new AppError("Invalid Google credential", 401);
+  if (accessToken && clientProfile) {
+    // Access token flow (from useGoogleLogin hook / custom button)
+    // Verify by calling Google's userinfo endpoint server-side
+    const verifyRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const verified = await verifyRes.json();
+
+    if (!verifyRes.ok || !verified.sub) {
+      throw new AppError("Invalid Google access token", 401);
+    }
+
+    profile = {
+      sub: verified.sub,
+      name: verified.name || clientProfile.name,
+      email: verified.email || clientProfile.email,
+      picture: verified.picture || clientProfile.picture || ""
+    };
+  } else if (credential) {
+    // ID token flow (from GoogleLogin widget — legacy support)
+    const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+    const tokenInfo = await response.json();
+
+    if (!response.ok || tokenInfo.aud !== env.googleClientId) {
+      throw new AppError("Invalid Google credential", 401);
+    }
+
+    profile = {
+      sub: tokenInfo.sub,
+      name: tokenInfo.name,
+      email: tokenInfo.email,
+      picture: tokenInfo.picture || ""
+    };
+  } else {
+    throw new AppError("Google credential or access token is required", 400);
   }
 
   let user = await User.findOne({ $or: [{ googleId: profile.sub }, { email: profile.email }] });
@@ -72,14 +105,14 @@ export const googleLogin = asyncHandler(async (req, res) => {
       googleId: profile.sub,
       name: profile.name,
       email: profile.email,
-      avatar: profile.picture || "",
+      avatar: profile.picture,
       provider: "google",
       avatarColor: "#0ea5e9",
       lastLoginAt: new Date()
     });
   } else {
     user.googleId = user.googleId || profile.sub;
-    user.avatar = user.avatar || profile.picture || "";
+    user.avatar = user.avatar || profile.picture;
     user.provider = user.provider === "local" ? "google" : user.provider;
     user.lastLoginAt = new Date();
     await user.save();

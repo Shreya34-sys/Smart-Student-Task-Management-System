@@ -49,6 +49,11 @@ export function acceptInvite(token) {
   return request(() => api.post("/invites/accept", { token }), "Could not accept invite");
 }
 
+export function fetchTeamInvites(teamId) {
+  return request(() => api.get(`/invites/team/${teamId}`), "Could not load invites");
+}
+
+
 export function forgotPassword(data) {
   return request(() => api.post("/auth/forgot-password", data), "Could not send reset link");
 }
