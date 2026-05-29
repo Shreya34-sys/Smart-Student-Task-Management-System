@@ -1,6 +1,6 @@
 {
   "name": "Smart Student Tasks",
-  "short_name": "Student Tasks",
+  "short_name": "Taskmanager",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
