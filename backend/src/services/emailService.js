@@ -28,3 +28,51 @@ export async function sendTaskEmail({ to, subject, text }) {
     text
   });
 }
+
+export async function sendInviteEmail({ to, senderName, teamName, acceptUrl }) {
+  const subject = `${senderName} invited you to Smart Student Tasks`;
+  const text = `${senderName} invited you to join ${teamName} on Smart Student Tasks. Accept the invite: ${acceptUrl}`;
+  const html = `
+    <!doctype html>
+    <html>
+      <body style="margin:0;background:#f8fafc;font-family:Arial,sans-serif;color:#111827;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:32px 12px;">
+          <tr>
+            <td align="center">
+              <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e5e7eb;">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#14b8a6,#2563eb);padding:28px;color:#ffffff;">
+                    <div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Smart Student Tasks</div>
+                    <h1 style="margin:10px 0 0;font-size:28px;line-height:1.2;">You have a teammate invite</h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:28px;">
+                    <p style="margin:0 0 16px;font-size:16px;line-height:1.6;">${senderName} invited you to collaborate on <strong>${teamName}</strong>.</p>
+                    <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#475569;">Accept this invite to join the team, manage tasks, and collaborate with your classmates.</p>
+                    <a href="${acceptUrl}" style="display:inline-block;border-radius:12px;background:linear-gradient(135deg,#14b8a6,#2563eb);color:#ffffff;text-decoration:none;font-weight:700;padding:14px 22px;">Accept Invite</a>
+                    <p style="margin:24px 0 0;font-size:12px;line-height:1.5;color:#64748b;">This invite expires in 7 days. If the button does not work, open this link:<br><a href="${acceptUrl}" style="color:#2563eb;">${acceptUrl}</a></p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `;
+
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log(`Invite email skipped for ${to}: ${acceptUrl}`);
+    return { skipped: true };
+  }
+
+  return transporter.sendMail({
+    from: env.smtp.from,
+    to,
+    subject,
+    text,
+    html
+  });
+}

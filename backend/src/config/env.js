@@ -30,14 +30,16 @@ export const env = {
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
+  serverUrl: process.env.SERVER_URL || "",
   redisUrl: process.env.REDIS_URL || "",
   quoteApiUrl: process.env.QUOTE_API_URL || "https://api.quotable.io/random",
   googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
   smtp: {
-    host: process.env.SMTP_HOST || "",
+    host: process.env.SMTP_HOST || (process.env.EMAIL_USER ? "smtp.gmail.com" : ""),
     port: Number(process.env.SMTP_PORT || 587),
-    user: process.env.SMTP_USER || "",
-    pass: process.env.SMTP_PASS || "",
+    user: process.env.SMTP_USER || process.env.EMAIL_USER || "",
+    pass: process.env.SMTP_PASS || process.env.EMAIL_PASS || "",
     from: process.env.SMTP_FROM || "Smart Tasks <no-reply@smarttasks.local>"
   },
   openAiApiKey: process.env.OPENAI_API_KEY || ""

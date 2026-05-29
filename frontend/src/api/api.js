@@ -36,3 +36,15 @@ export function loginUser(data) {
 export function registerUser(data) {
   return request(() => api.post("/auth/register", data), "Could not register");
 }
+
+export function sendInvite(data) {
+  return request(() => api.post("/invites/send", data), "Could not send invite");
+}
+
+export function fetchInvite(token) {
+  return request(() => api.get(`/invites/${token}`), "Could not load invite");
+}
+
+export function acceptInvite(token) {
+  return request(() => api.post("/invites/accept", { token }), "Could not accept invite");
+}

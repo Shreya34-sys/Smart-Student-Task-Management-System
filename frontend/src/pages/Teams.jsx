@@ -2,15 +2,15 @@ import { UserPlus, UsersRound } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { api } from "../api/axios";
+import InviteTeammateModal from "../components/InviteTeammateModal";
 import { useToast } from "../context/ToastContext";
 
 export default function Teams() {
   const [teams, setTeams] = useState([]);
   const [form, setForm] = useState({ name: "", description: "" });
-  const [inviteEmail, setInviteEmail] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
   const [creating, setCreating] = useState(false);
-  const [inviting, setInviting] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const { showToast } = useToast();
 
   const loadTeams = async () => {
@@ -46,25 +46,6 @@ export default function Teams() {
     }
   };
 
-  const invite = async (event) => {
-    event.preventDefault();
-    if (!selectedTeam) {
-      showToast("Create a team before inviting members", "error");
-      return;
-    }
-    setInviting(true);
-    try {
-      await api.post(`/teams/${selectedTeam}/invite`, { email: inviteEmail });
-      setInviteEmail("");
-      showToast("Member invited");
-      await loadTeams();
-    } catch (error) {
-      showToast(error.response?.data?.message || "Could not invite member", "error");
-    } finally {
-      setInviting(false);
-    }
-  };
-
   return (
     <motion.div className="grid gap-6 lg:grid-cols-[360px_1fr]" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
       <section className="space-y-4">
@@ -85,7 +66,7 @@ export default function Teams() {
             {creating ? "Creating..." : "Create team"}
           </button>
         </form>
-        <form className="glass rounded-lg p-5" onSubmit={invite}>
+        <div className="glass rounded-lg p-5">
           <div className="mb-4 flex items-center gap-3">
             <UserPlus className="h-5 w-5 text-teal-600" />
             <h2 className="text-lg font-black">Invite member</h2>
@@ -101,14 +82,14 @@ export default function Teams() {
           </select>
           {!teams.length && (
             <p className="mb-3 rounded-lg border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100">
-              Create a team first, then choose it here to invite a registered user by email.
+              Create a team first, then choose it here to invite a teammate by email.
             </p>
           )}
-          <input className="input" disabled={!teams.length} type="email" placeholder="student@example.com" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} required />
-          <button className="btn-primary mt-4" disabled={!teams.length || inviting} type="submit">
-            {inviting ? "Inviting..." : "Invite"}
+          <button className="btn-primary mt-4" disabled={!teams.length} onClick={() => setInviteOpen(true)} type="button">
+            <UserPlus className="h-4 w-4" />
+            Invite teammate
           </button>
-        </form>
+        </div>
       </section>
       <section className="grid gap-4 md:grid-cols-2">
         {teams.map((team) => (
@@ -126,6 +107,7 @@ export default function Teams() {
           </article>
         ))}
       </section>
+      <InviteTeammateModal open={inviteOpen} teams={teams} selectedTeam={selectedTeam} onTeamChange={setSelectedTeam} onClose={() => setInviteOpen(false)} />
     </motion.div>
   );
 }

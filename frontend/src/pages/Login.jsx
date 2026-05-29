@@ -8,6 +8,7 @@ import { isGoogleOAuthConfigured } from "../config/oauth";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [googleLoading, setGoogleLoading] = useState(false);
   const { login, googleLogin, loading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -25,12 +26,15 @@ export default function Login() {
   };
 
   const handleGoogle = async (response) => {
+    setGoogleLoading(true);
     try {
       await googleLogin(response.credential);
       showToast("Signed in with Google");
       navigate("/app");
     } catch (error) {
       showToast(error.response?.data?.message || "Google login is not configured", "error");
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -57,7 +61,8 @@ export default function Login() {
           Log in
         </button>
         {isGoogleOAuthConfigured && (
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <p className="text-xs font-semibold text-slate-300">{googleLoading ? "Connecting to Google..." : "or continue with Google"}</p>
             <GoogleLogin onSuccess={handleGoogle} onError={() => showToast("Google login failed", "error")} />
           </div>
         )}

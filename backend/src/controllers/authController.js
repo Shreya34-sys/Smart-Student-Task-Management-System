@@ -19,6 +19,8 @@ function sendAuthResponse(res, user, statusCode = 200) {
       id: user._id,
       name: user.name,
       email: user.email,
+      avatar: user.avatar,
+      provider: user.provider,
       course: user.course,
       avatarColor: user.avatarColor,
       role: user.role,
@@ -67,11 +69,15 @@ export const googleLogin = asyncHandler(async (req, res) => {
       googleId: profile.sub,
       name: profile.name,
       email: profile.email,
+      avatar: profile.picture || "",
+      provider: "google",
       avatarColor: "#0ea5e9",
       lastLoginAt: new Date()
     });
   } else {
     user.googleId = user.googleId || profile.sub;
+    user.avatar = user.avatar || profile.picture || "";
+    user.provider = user.provider === "local" ? "google" : user.provider;
     user.lastLoginAt = new Date();
     await user.save();
   }

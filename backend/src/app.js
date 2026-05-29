@@ -11,6 +11,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import assistantRoutes from "./routes/assistantRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import externalRoutes from "./routes/externalRoutes.js";
+import inviteRoutes from "./routes/inviteRoutes.js";
 import teamRoutes from "./routes/teamRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 
@@ -40,6 +41,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/external", externalRoutes);
+app.use("/api/invites", inviteRoutes);
 app.use("/api/activity", activityRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/assistant", assistantRoutes);

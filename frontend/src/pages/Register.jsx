@@ -1,13 +1,16 @@
+import { GoogleLogin } from "@react-oauth/google";
 import { Loader2, UserPlus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { isGoogleOAuthConfigured } from "../config/oauth";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { passwordStrength } from "../utils/passwordStrength";
 
 export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", course: "", password: "", confirmPassword: "" });
-  const { register, loading } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const { register, googleLogin, loading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const strength = useMemo(() => passwordStrength(form.password), [form.password]);
@@ -29,6 +32,19 @@ export default function Register() {
     } catch (error) {
       const message = error.response?.data?.message || (error.request ? "Backend server is not running. Start the API and try again." : "Registration failed");
       showToast(message, "error");
+    }
+  };
+
+  const handleGoogle = async (response) => {
+    setGoogleLoading(true);
+    try {
+      await googleLogin(response.credential);
+      showToast("Account created with Google");
+      navigate("/app");
+    } catch (error) {
+      showToast(error.response?.data?.message || "Google signup is not configured", "error");
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -74,6 +90,12 @@ export default function Register() {
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
           Create account
         </button>
+        {isGoogleOAuthConfigured && (
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <p className="text-xs font-semibold text-slate-300">{googleLoading ? "Connecting to Google..." : "or continue with Google"}</p>
+            <GoogleLogin onSuccess={handleGoogle} onError={() => showToast("Google signup failed", "error")} />
+          </div>
+        )}
         <p className="mt-4 text-center text-sm text-slate-300">
           Already registered? <Link className="font-bold text-teal-200" to="/login">Log in</Link>
         </p>

@@ -50,6 +50,8 @@ export async function fetchProfile() {
     id: data.user._id || data.user.id,
     name: data.user.name,
     email: data.user.email,
+    avatar: data.user.avatar,
+    provider: data.user.provider,
     course: data.user.course,
     avatarColor: data.user.avatarColor,
     role: data.user.role,
