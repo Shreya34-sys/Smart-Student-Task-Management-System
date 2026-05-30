@@ -23,38 +23,6 @@ Frontend: `http://localhost:5173` or Vite's next available port.
 
 Backend: `http://localhost:5000/api`
 
-## Environment
-
-Backend `backend/.env`:
-
-```env
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb://127.0.0.1:27017/smart_student_tasks
-JWT_SECRET=replace-with-a-long-random-secret
-JWT_EXPIRES_IN=7d
-CLIENT_URL=http://localhost:5173
-REDIS_URL=
-QUOTE_API_URL=https://api.quotable.io/random
-GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-SMTP_FROM="Smart Tasks <no-reply@smarttasks.local>"
-OPENAI_API_KEY=
-```
-
-Frontend `frontend/.env`:
-
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
-VITE_GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
-```
-
-Google OAuth works after setting the same Google Cloud **Web application** client ID in `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_CLIENT_ID`. In Google Cloud Console, add your frontend origin such as `http://localhost:5173` or `http://localhost:5174` under Authorized JavaScript origins. Email works after setting SMTP variables. The AI assistant uses a local productivity planner by default and can call OpenAI when `OPENAI_API_KEY` is configured.
-
 ## Folder Structure
 
 ```text
