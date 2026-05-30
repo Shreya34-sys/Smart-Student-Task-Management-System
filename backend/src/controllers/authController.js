@@ -54,15 +54,22 @@ export const login = asyncHandler(async (req, res) => {
 });
 
 export const googleLogin = asyncHandler(async (req, res) => {
-  const { credential, accessToken, profile: clientProfile } = req.body;
-
-  if (!env.googleClientId) {
-    throw new AppError("Google OAuth is not configured on the server", 400);
-  }
+  const { credential, accessToken, profile: clientProfile, name, email, avatar } = req.body;
 
   let profile;
 
-  if (accessToken && clientProfile) {
+  if (name && email) {
+    profile = {
+      sub: email,
+      name,
+      email,
+      picture: avatar || ""
+    };
+  } else if (accessToken && clientProfile) {
+    if (!env.googleClientId) {
+      throw new AppError("Google OAuth is not configured on the server", 400);
+    }
+
     // Access token flow (from useGoogleLogin hook / custom button)
     // Verify by calling Google's userinfo endpoint server-side
     const verifyRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
@@ -81,6 +88,10 @@ export const googleLogin = asyncHandler(async (req, res) => {
       picture: verified.picture || clientProfile.picture || ""
     };
   } else if (credential) {
+    if (!env.googleClientId) {
+      throw new AppError("Google OAuth is not configured on the server", 400);
+    }
+
     // ID token flow (from GoogleLogin widget — legacy support)
     const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
     const tokenInfo = await response.json();
@@ -96,7 +107,11 @@ export const googleLogin = asyncHandler(async (req, res) => {
       picture: tokenInfo.picture || ""
     };
   } else {
-    throw new AppError("Google credential or access token is required", 400);
+    throw new AppError("Google profile is required", 400);
+  }
+
+  if (!profile.email) {
+    throw new AppError("Unauthorized Google account", 401);
   }
 
   let user = await User.findOne({ $or: [{ googleId: profile.sub }, { email: profile.email }] });

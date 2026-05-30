@@ -1,97 +1,106 @@
 {
-  "hash": "9e6fed23",
+  "hash": "5619ed0b",
   "configHash": "bfd4efc8",
-  "lockfileHash": "57337ad3",
-  "browserHash": "b775aad0",
+  "lockfileHash": "bd6fe432",
+  "browserHash": "9c80b105",
   "optimized": {
     "react": {
       "src": "../../frontend/node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "5e0a7594",
+      "fileHash": "4e234ddf",
       "needsInterop": true
     },
     "react-dom": {
       "src": "../../frontend/node_modules/react-dom/index.js",
       "file": "react-dom.js",
-      "fileHash": "f7042fd3",
+      "fileHash": "ed83249c",
       "needsInterop": true
     },
     "react/jsx-dev-runtime": {
       "src": "../../frontend/node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "3246bb76",
+      "fileHash": "31296a52",
       "needsInterop": true
     },
     "react/jsx-runtime": {
       "src": "../../frontend/node_modules/react/jsx-runtime.js",
       "file": "react_jsx-runtime.js",
-      "fileHash": "f58c910f",
+      "fileHash": "e1ce5836",
       "needsInterop": true
     },
     "@hello-pangea/dnd": {
       "src": "../../frontend/node_modules/@hello-pangea/dnd/dist/dnd.esm.js",
       "file": "@hello-pangea_dnd.js",
-      "fileHash": "abbbbe87",
-      "needsInterop": false
-    },
-    "@react-oauth/google": {
-      "src": "../../frontend/node_modules/@react-oauth/google/dist/index.esm.js",
-      "file": "@react-oauth_google.js",
-      "fileHash": "50f43eec",
+      "fileHash": "0ad9796d",
       "needsInterop": false
     },
     "axios": {
       "src": "../../frontend/node_modules/axios/index.js",
       "file": "axios.js",
-      "fileHash": "681e5c41",
+      "fileHash": "08b2967c",
+      "needsInterop": false
+    },
+    "firebase/app": {
+      "src": "../../frontend/node_modules/firebase/app/dist/esm/index.esm.js",
+      "file": "firebase_app.js",
+      "fileHash": "ee3a1e81",
+      "needsInterop": false
+    },
+    "firebase/auth": {
+      "src": "../../frontend/node_modules/firebase/auth/dist/esm/index.esm.js",
+      "file": "firebase_auth.js",
+      "fileHash": "c9e4b060",
       "needsInterop": false
     },
     "framer-motion": {
       "src": "../../frontend/node_modules/framer-motion/dist/es/index.mjs",
       "file": "framer-motion.js",
-      "fileHash": "2ab2a263",
+      "fileHash": "e13b51ff",
       "needsInterop": false
     },
     "lucide-react": {
       "src": "../../frontend/node_modules/lucide-react/dist/esm/lucide-react.js",
       "file": "lucide-react.js",
-      "fileHash": "044f32e5",
+      "fileHash": "20a8b529",
       "needsInterop": false
     },
     "react-dom/client": {
       "src": "../../frontend/node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "6e1e5dbf",
+      "fileHash": "d7ece9d0",
       "needsInterop": true
     },
     "react-router-dom": {
       "src": "../../frontend/node_modules/react-router-dom/dist/index.js",
       "file": "react-router-dom.js",
-      "fileHash": "f948fbf2",
+      "fileHash": "086352c1",
       "needsInterop": false
     },
     "recharts": {
       "src": "../../frontend/node_modules/recharts/es6/index.js",
       "file": "recharts.js",
-      "fileHash": "53a74ebf",
+      "fileHash": "ab25648b",
       "needsInterop": false
     },
     "socket.io-client": {
       "src": "../../frontend/node_modules/socket.io-client/build/esm/index.js",
       "file": "socket__io-client.js",
-      "fileHash": "f464a424",
+      "fileHash": "7b51ee10",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-LOOUW2SX": {
-      "file": "chunk-LOOUW2SX.js"
+    "chunk-6M2PIRAT": {
+      "file": "chunk-6M2PIRAT.js"
     },
     "chunk-TBWGJY5X": {
       "file": "chunk-TBWGJY5X.js"
     },
     "chunk-G5UEBYRY": {
       "file": "chunk-G5UEBYRY.js"
+    },
+    "chunk-LOOUW2SX": {
+      "file": "chunk-LOOUW2SX.js"
     },
     "chunk-ZJDDNRPA": {
       "file": "chunk-ZJDDNRPA.js"

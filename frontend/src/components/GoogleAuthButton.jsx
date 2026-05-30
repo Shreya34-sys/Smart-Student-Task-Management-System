@@ -1,54 +1,52 @@
-import { useGoogleLogin } from "@react-oauth/google";
+import { signInWithPopup } from "firebase/auth";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { firebaseAuth, googleProvider, isFirebaseConfigured } from "../config/firebase";
 
-/**
- * Custom-styled "Continue with Google" button.
- * Uses useGoogleLogin hook (implicit flow) to get an access token,
- * then fetches the user's profile from Google's userinfo endpoint
- * and passes the profile data to the parent via onSuccess.
- *
- * @param {Object} props
- * @param {function} props.onSuccess - Called with { accessToken, profile } on success
- * @param {function} props.onError - Called with error message on failure
- * @param {string} [props.label] - Button label (default: "Continue with Google")
- * @param {boolean} [props.disabled] - Whether button is disabled
- */
 export default function GoogleAuthButton({ onSuccess, onError, label = "Continue with Google", disabled = false }) {
   const [loading, setLoading] = useState(false);
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setLoading(true);
-      try {
-        // Fetch user profile using the access token
-        const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch Google profile");
-
-        const profile = await res.json();
-        onSuccess({
-          accessToken: tokenResponse.access_token,
-          profile
-        });
-      } catch (err) {
-        onError?.(err.message || "Google login failed");
-      } finally {
-        setLoading(false);
-      }
-    },
-    onError: () => {
-      onError?.("Google login was cancelled");
+  const handleClick = async () => {
+    if (!isFirebaseConfigured || !firebaseAuth) {
+      onError?.("Firebase Google authentication is not configured");
+      return;
     }
-  });
+
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(firebaseAuth, googleProvider);
+      const { displayName, email, photoURL } = result.user;
+
+      if (!email) {
+        throw new Error("Your Google account did not share an email address");
+      }
+
+      await onSuccess({
+        name: displayName || email.split("@")[0],
+        email,
+        avatar: photoURL || ""
+      });
+    } catch (error) {
+      const messages = {
+        "auth/popup-closed-by-user": "Google sign-in popup was closed",
+        "auth/cancelled-popup-request": "Google sign-in was cancelled",
+        "auth/popup-blocked": "Google sign-in popup was blocked by the browser",
+        "auth/network-request-failed": "Network error while signing in with Google",
+        "auth/unauthorized-domain": "This domain is not authorized for Firebase Google sign-in",
+        "auth/account-exists-with-different-credential": "An account already exists with a different sign-in method"
+      };
+
+      onError?.(messages[error.code] || error.message || "Google login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <button
       type="button"
       disabled={disabled || loading}
-      onClick={() => googleLogin()}
+      onClick={handleClick}
       className="group relative flex w-full items-center justify-center gap-3 rounded-xl
                  border border-slate-600/50 bg-slate-800/60 px-5 py-3.5
                  text-sm font-semibold text-slate-200

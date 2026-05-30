@@ -2,7 +2,6 @@ import { Loader2, LogIn } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import GoogleAuthButton from "../components/GoogleAuthButton";
-import { isGoogleOAuthConfigured } from "../config/oauth";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 
@@ -24,13 +23,14 @@ export default function Login() {
     }
   };
 
-  const handleGoogle = async ({ accessToken, profile }) => {
+  const handleGoogle = async (profile) => {
     try {
-      await googleLogin({ accessToken, profile });
+      await googleLogin(profile);
       showToast("Signed in with Google");
       navigate("/app");
     } catch (error) {
-      showToast(error.response?.data?.message || "Google login failed", "error");
+      const message = error.response?.data?.message || (error.request ? "Network error while contacting the server" : "Google login failed");
+      showToast(message, "error");
     }
   };
 
@@ -50,34 +50,31 @@ export default function Login() {
           <div>
             <div className="flex items-center justify-between">
               <label className="text-sm font-semibold">Password</label>
-              <Link className="text-xs text-teal-200 hover:text-teal-100" to="/forgot-password">
-                Forgot password?
-              </Link>
             </div>
             <input className="input mt-1" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required />
+            <Link className="mt-2 inline-flex text-xs font-semibold text-teal-200 hover:text-teal-100" to="/forgot-password">
+              Forgot Password?
+            </Link>
           </div>
         </div>
         <button className="btn-primary mt-6 w-full" disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
           Log in
         </button>
-        {isGoogleOAuthConfigured && (
-          <div className="mt-5">
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-slate-600/60" />
-              <span className="text-xs font-semibold text-slate-400">or</span>
-              <div className="h-px flex-1 bg-slate-600/60" />
-            </div>
-            <div className="mt-4">
-              <GoogleAuthButton onSuccess={handleGoogle} onError={(msg) => showToast(msg, "error")} disabled={loading} />
-            </div>
+        <div className="mt-5">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-600/60" />
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">or</span>
+            <div className="h-px flex-1 bg-slate-600/60" />
           </div>
-        )}
+          <div className="mt-4">
+            <GoogleAuthButton onSuccess={handleGoogle} onError={(msg) => showToast(msg, "error")} disabled={loading} />
+          </div>
+        </div>
         <p className="mt-4 text-center text-sm text-slate-300">
-          New here? <Link className="font-bold text-teal-200" to="/register">Create an account</Link>
+          Don't have an account? <Link className="font-bold text-teal-200" to="/register">Sign Up</Link>
         </p>
       </form>
     </main>
   );
 }
-
