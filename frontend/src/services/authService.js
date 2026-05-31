@@ -60,7 +60,6 @@ export async function fetchProfile() {
     email: data.user.email,
     avatar: data.user.avatar,
     phone: data.user.phone,
-    phoneVerified: data.user.phoneVerified,
     provider: data.user.provider,
     course: data.user.course,
     avatarColor: data.user.avatarColor,

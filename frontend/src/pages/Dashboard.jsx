@@ -48,11 +48,13 @@ export default function Dashboard() {
           </>
         )}
       </section>
-      <section className="grid gap-5 lg:grid-cols-3">
-        <div className="glass rounded-lg p-6 lg:col-span-2">
-          <div className="mb-5 flex items-center gap-3">
-            <CalendarClock className="h-5 w-5 text-teal-600" />
-            <h2 className="text-xl font-black">Today at a glance</h2>
+      <section className="grid gap-6 lg:grid-cols-3">
+        <div className="glass p-7 lg:col-span-2">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-500/10">
+              <CalendarClock className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+            </div>
+            <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">Today at a glance</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <StatCard label="Todo" value={analytics.todo} />
@@ -60,28 +62,48 @@ export default function Dashboard() {
             <StatCard label="Completion rate" value={`${analytics.total ? Math.round((analytics.completed / analytics.total) * 100) : 0}%`} tone="sky" />
           </div>
         </div>
-        <div className="glass rounded-lg p-6">
-          <div className="mb-4 flex items-center gap-3">
-            <Quote className="h-5 w-5 text-teal-600" />
-            <h2 className="text-xl font-black">Focus quote</h2>
+        <div className="glass relative overflow-hidden p-7">
+          <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br from-amber-200/40 to-transparent blur-3xl dark:from-amber-500/20" />
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-500/10">
+              <Quote className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">Focus quote</h2>
           </div>
-          <p className="text-lg font-semibold leading-relaxed text-slate-700 dark:text-neutral-200">{quote?.text || "Loading inspiration..."}</p>
-          <p className="mt-4 text-sm font-bold text-teal-700 dark:text-teal-400">{quote?.author}</p>
+          <div className="relative">
+            <Quote className="absolute -left-2 -top-2 h-8 w-8 text-slate-200/50 dark:text-slate-800/50" />
+            <p className="relative z-10 text-lg font-bold leading-relaxed text-slate-700 dark:text-slate-200">{quote?.text || "Loading inspiration..."}</p>
+            <p className="relative z-10 mt-4 text-sm font-black text-amber-600 dark:text-amber-400">— {quote?.author}</p>
+          </div>
         </div>
       </section>
-      <section className="grid gap-5 lg:grid-cols-2">
+      <section className="grid gap-6 lg:grid-cols-2">
         <AnalyticsCharts analytics={analytics} />
         <AssistantPanel />
       </section>
-      <section className="glass rounded-lg p-5">
-        <h2 className="mb-4 text-lg font-black">Recent activity</h2>
-        <div className="space-y-3 text-sm">
-          {activities.length ? activities.map((activity) => (
-            <div className="rounded-lg bg-white/70 p-3 dark:bg-neutral-800" key={activity._id}>
-              <p className="font-semibold">{activity.action.replaceAll("_", " ")}</p>
-              <p className="text-slate-500 dark:text-neutral-400">{new Date(activity.createdAt).toLocaleString()}</p>
-            </div>
-          )) : <p className="text-slate-500 dark:text-neutral-400">No activity yet.</p>}
+      <section className="glass p-6">
+        <h2 className="mb-6 text-lg font-black text-slate-900 dark:text-white">Recent Activity Timeline</h2>
+        <div className="relative border-l-2 border-slate-200/50 dark:border-white/10 ml-3 space-y-6">
+          {activities.length ? activities.map((activity, i) => {
+            const actionText = activity.action.replaceAll("_", " ");
+            const isCreation = actionText.includes("created");
+            return (
+              <div className="relative pl-6" key={activity._id}>
+                <div className={`absolute -left-[9px] top-1 h-4 w-4 rounded-full border-2 border-white dark:border-slate-950 ${isCreation ? 'bg-teal-500' : 'bg-blue-500'}`} />
+                <div className="rounded-xl border border-slate-200/50 bg-white/60 p-4 shadow-sm transition hover:shadow-md dark:border-white/5 dark:bg-white/5">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-slate-800 dark:text-slate-200 capitalize">{actionText}</p>
+                    <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+                      {new Date(activity.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    {new Date(activity.createdAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+            );
+          }) : <p className="ml-6 text-sm font-semibold text-slate-500 dark:text-slate-400">No activity yet. Time to get started!</p>}
         </div>
       </section>
     </motion.div>

@@ -35,10 +35,6 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: ""
     },
-    phoneVerified: {
-      type: Boolean,
-      default: false
-    },
     provider: {
       type: String,
       enum: ["local", "google"],

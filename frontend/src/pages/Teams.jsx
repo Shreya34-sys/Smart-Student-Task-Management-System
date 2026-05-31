@@ -38,9 +38,9 @@ function MemberAvatar({ member }) {
 /** Status badge for invite status */
 function StatusBadge({ status }) {
   const styles = {
-    pending: "bg-amber-400/15 text-amber-300 border-amber-400/30",
-    accepted: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30",
-    expired: "bg-slate-400/15 text-slate-400 border-slate-400/30"
+    pending: "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:bg-amber-400/15 dark:text-amber-300 dark:border-amber-400/30",
+    accepted: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-emerald-400/15 dark:text-emerald-300 dark:border-emerald-400/30",
+    expired: "bg-slate-500/10 text-slate-600 border-slate-500/20 dark:bg-slate-400/15 dark:text-slate-400 dark:border-slate-400/30"
   };
 
   return (
@@ -54,12 +54,12 @@ function StatusBadge({ status }) {
 /** Role badge for team members */
 function RoleBadge({ role, isOwner }) {
   if (isOwner) {
-    return <span className="rounded-full bg-teal-400/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-teal-300 border border-teal-400/30">Owner</span>;
+    return <span className="rounded-full bg-teal-500/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-teal-600 border border-teal-500/20 dark:bg-teal-400/15 dark:text-teal-300 dark:border-teal-400/30">Owner</span>;
   }
   if (role === "lead") {
-    return <span className="rounded-full bg-blue-400/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-300 border border-blue-400/30">Lead</span>;
+    return <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-600 border border-blue-500/20 dark:bg-blue-400/15 dark:text-blue-300 dark:border-blue-400/30">Lead</span>;
   }
-  return <span className="rounded-full bg-slate-400/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 border border-slate-400/30">Member</span>;
+  return <span className="rounded-full bg-slate-500/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 border border-slate-500/20 dark:bg-slate-400/15 dark:text-slate-400 dark:border-slate-400/30">Member</span>;
 }
 
 export default function Teams() {
@@ -159,7 +159,7 @@ export default function Teams() {
             {teams.map((team) => <option key={team._id} value={team._id}>{team.name}</option>)}
           </select>
           {!teams.length && (
-            <p className="mb-3 rounded-lg border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100">
+            <p className="mb-3 rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-xs font-semibold text-cyan-800 dark:text-cyan-100">
               Create a team first, then choose it here to invite a teammate by email.
             </p>
           )}
@@ -178,10 +178,10 @@ export default function Teams() {
             </div>
             <div className="space-y-2">
               {pendingInvites.map((invite) => (
-                <div className="flex items-center justify-between rounded-lg bg-white/5 p-3 text-sm" key={invite._id}>
+                <div className="flex items-center justify-between rounded-lg bg-black/5 dark:bg-white/5 p-3 text-sm" key={invite._id}>
                   <div className="min-w-0">
                     <p className="truncate font-semibold">{invite.email}</p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       by {invite.invitedBy?.name || "Unknown"} · {new Date(invite.createdAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -198,18 +198,18 @@ export default function Teams() {
           <article className="glass rounded-lg p-5" key={team._id}>
             <div className="mb-1 flex items-center justify-between">
               <h3 className="text-xl font-black">{team.name}</h3>
-              <span className="rounded-full bg-teal-400/10 px-2.5 py-0.5 text-xs font-bold text-teal-300">
+              <span className="rounded-full bg-teal-500/10 dark:bg-teal-400/10 px-2.5 py-0.5 text-xs font-bold text-teal-600 dark:text-teal-300">
                 {(team.members?.length || 0)} {team.members?.length === 1 ? "member" : "members"}
               </span>
             </div>
             <p className="mt-1 text-sm text-slate-500 dark:text-neutral-400">{team.description || "No description"}</p>
             <div className="mt-4 space-y-2">
               {team.members?.map((member) => (
-                <div className="flex items-center gap-3 rounded-lg bg-white/5 p-3 text-sm" key={member.user?._id || member.user}>
+                <div className="flex items-center gap-3 rounded-lg bg-black/5 dark:bg-white/5 p-3 text-sm" key={member.user?._id || member.user}>
                   <MemberAvatar member={member} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold">{member.user?.name || "Member"}</p>
-                    <p className="truncate text-xs text-slate-400">{member.user?.email}</p>
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">{member.user?.email}</p>
                   </div>
                   <RoleBadge role={member.role} isOwner={team.owner === member.user?._id || team.owner?._id === member.user?._id} />
                 </div>

@@ -15,8 +15,8 @@ export default function AppLogo({ showText = true, size = "md" }) {
       </div>
       {showText && (
         <div className="leading-tight">
-          <p className="text-base font-black text-white">Smart Student</p>
-          <p className="text-xs font-semibold text-teal-200">Task Management</p>
+          <p className="text-base font-black text-slate-900 dark:text-white">Smart Student</p>
+          <p className="text-xs font-bold tracking-wide text-teal-600 dark:text-teal-400">Tasks</p>
         </div>
       )}
     </div>

@@ -24,7 +24,6 @@ function sendAuthResponse(res, user, statusCode = 200) {
       email: user.email,
       avatar: user.avatar,
       phone: user.phone,
-      phoneVerified: user.phoneVerified,
       provider: user.provider,
       course: user.course,
       avatarColor: user.avatarColor,
@@ -35,8 +34,8 @@ function sendAuthResponse(res, user, statusCode = 200) {
 }
 
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, password, course, phone, phoneVerified } = req.body;
-  const user = await User.create({ name, email, password, course, phone, phoneVerified: Boolean(phoneVerified) });
+  const { name, email, password, course, phone } = req.body;
+  const user = await User.create({ name, email, password, course, phone });
   await logActivity({ actor: user._id, action: "registered", entityType: "user", entityId: user._id });
   sendAuthResponse(res, user, 201);
 });

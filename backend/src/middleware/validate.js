@@ -3,14 +3,13 @@ import { AppError } from "../utils/AppError.js";
 const emailPattern = /^\S+@\S+\.\S+$/;
 
 export function validateRegister(req, _res, next) {
-  const { name, email, password, confirmPassword, phone, phoneVerified } = req.body;
+  const { name, email, password, confirmPassword, phone } = req.body;
 
   if (!name || name.trim().length < 2) return next(new AppError("Name must be at least 2 characters", 400));
   if (!emailPattern.test(email || "")) return next(new AppError("Valid email is required", 400));
   if (!phone || !phone.trim().startsWith("+") || phone.trim().length < 8) {
     return next(new AppError("Valid phone number with country code is required", 400));
   }
-  if (!phoneVerified) return next(new AppError("Phone number must be verified", 400));
   if (!password || password.length < 6) {
     return next(new AppError("Password must be at least 6 characters", 400));
   }

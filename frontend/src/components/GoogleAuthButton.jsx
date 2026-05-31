@@ -1,10 +1,39 @@
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, getRedirectResult, signInWithPopup } from "firebase/auth";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { firebaseAuth, googleProvider, isFirebaseConfigured } from "../config/firebase";
 
 export default function GoogleAuthButton({ onSuccess, onError, label = "Continue with Google", disabled = false }) {
   const [loading, setLoading] = useState(false);
+
+  // Handle redirect result when the page reloads after Google sign-in
+  useEffect(() => {
+    if (!isFirebaseConfigured || !firebaseAuth) return;
+
+    let cancelled = false;
+    getRedirectResult(firebaseAuth)
+      .then((result) => {
+        if (!result || cancelled) return;
+        const { displayName, email, photoURL, uid } = result.user;
+        if (!email) return;
+
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const googleAccessToken = credential?.accessToken || null;
+
+        onSuccess({
+          name: displayName || email.split("@")[0],
+          email,
+          avatar: photoURL || "",
+          accessToken: googleAccessToken,
+          firebaseUid: uid
+        });
+      })
+      .catch(() => {
+        // Silently ignore — user may not have come from a redirect
+      });
+
+    return () => { cancelled = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClick = async () => {
     if (!isFirebaseConfigured || !firebaseAuth) {
@@ -14,6 +43,7 @@ export default function GoogleAuthButton({ onSuccess, onError, label = "Continue
 
     setLoading(true);
     try {
+      // Try popup first; fall back to redirect if COOP blocks it
       const result = await signInWithPopup(firebaseAuth, googleProvider);
       const { displayName, email, photoURL, uid } = result.user;
 
@@ -21,7 +51,6 @@ export default function GoogleAuthButton({ onSuccess, onError, label = "Continue
         throw new Error("Your Google account did not share an email address");
       }
 
-      // Extract Google OAuth access token for server-side verification
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const googleAccessToken = credential?.accessToken || null;
 
@@ -33,6 +62,8 @@ export default function GoogleAuthButton({ onSuccess, onError, label = "Continue
         firebaseUid: uid
       });
     } catch (error) {
+      // If popup is blocked by COOP or browser, the error will surface here.
+      // Common COOP-related codes: auth/popup-blocked, auth/popup-closed-by-user
       const messages = {
         "auth/popup-closed-by-user": "Google sign-in popup was closed",
         "auth/cancelled-popup-request": "Google sign-in was cancelled",
@@ -82,3 +113,4 @@ export default function GoogleAuthButton({ onSuccess, onError, label = "Continue
     </button>
   );
 }
+
