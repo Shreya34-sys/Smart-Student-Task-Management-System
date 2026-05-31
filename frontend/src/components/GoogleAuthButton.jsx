@@ -1,4 +1,4 @@
-import { signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { firebaseAuth, googleProvider, isFirebaseConfigured } from "../config/firebase";
@@ -15,16 +15,22 @@ export default function GoogleAuthButton({ onSuccess, onError, label = "Continue
     setLoading(true);
     try {
       const result = await signInWithPopup(firebaseAuth, googleProvider);
-      const { displayName, email, photoURL } = result.user;
+      const { displayName, email, photoURL, uid } = result.user;
 
       if (!email) {
         throw new Error("Your Google account did not share an email address");
       }
 
+      // Extract Google OAuth access token for server-side verification
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const googleAccessToken = credential?.accessToken || null;
+
       await onSuccess({
         name: displayName || email.split("@")[0],
         email,
-        avatar: photoURL || ""
+        avatar: photoURL || "",
+        accessToken: googleAccessToken,
+        firebaseUid: uid
       });
     } catch (error) {
       const messages = {

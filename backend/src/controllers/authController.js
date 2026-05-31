@@ -56,24 +56,13 @@ export const login = asyncHandler(async (req, res) => {
 });
 
 export const googleLogin = asyncHandler(async (req, res) => {
-  const { credential, accessToken, profile: clientProfile, name, email, avatar } = req.body;
+  const { credential, accessToken, profile: clientProfile, name, email, avatar, firebaseUid } = req.body;
 
   let profile;
 
-  if (name && email) {
-    profile = {
-      sub: email,
-      name,
-      email,
-      picture: avatar || ""
-    };
-  } else if (accessToken && clientProfile) {
-    if (!env.googleClientId) {
-      throw new AppError("Google OAuth is not configured on the server", 400);
-    }
-
-    // Access token flow (from useGoogleLogin hook / custom button)
-    // Verify by calling Google's userinfo endpoint server-side
+  if (accessToken) {
+    // Access token flow — verify by calling Google's userinfo endpoint server-side
+    // This works for both Firebase-based flow and direct Google OAuth
     const verifyRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
@@ -85,9 +74,18 @@ export const googleLogin = asyncHandler(async (req, res) => {
 
     profile = {
       sub: verified.sub,
-      name: verified.name || clientProfile.name,
-      email: verified.email || clientProfile.email,
-      picture: verified.picture || clientProfile.picture || ""
+      name: verified.name || name || clientProfile?.name,
+      email: verified.email || email || clientProfile?.email,
+      picture: verified.picture || avatar || clientProfile?.picture || ""
+    };
+  } else if (name && email) {
+    // Firebase flow without access token (fallback if credential extraction failed)
+    // Use the Firebase UID as the sub identifier, or fall back to email
+    profile = {
+      sub: firebaseUid || email,
+      name,
+      email,
+      picture: avatar || ""
     };
   } else if (credential) {
     if (!env.googleClientId) {

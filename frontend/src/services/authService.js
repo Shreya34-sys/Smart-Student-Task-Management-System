@@ -42,7 +42,9 @@ export async function loginWithGoogle(credentialOrPayload) {
   const payload = {
     name: credentialOrPayload.name,
     email: credentialOrPayload.email,
-    avatar: credentialOrPayload.avatar
+    avatar: credentialOrPayload.avatar,
+    accessToken: credentialOrPayload.accessToken || undefined,
+    firebaseUid: credentialOrPayload.firebaseUid || undefined
   };
 
   const { data } = await api.post("/auth/google", payload);
