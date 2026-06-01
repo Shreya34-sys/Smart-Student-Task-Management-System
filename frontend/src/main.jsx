@@ -8,6 +8,18 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { ToastProvider } from "./context/ToastContext.jsx";
 import "./index.css";
 
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations()
+    .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+    .catch(() => {});
+}
+
+if ("caches" in window) {
+  caches.keys()
+    .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+    .catch(() => {});
+}
+
 const app = (
   <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <ThemeProvider>
