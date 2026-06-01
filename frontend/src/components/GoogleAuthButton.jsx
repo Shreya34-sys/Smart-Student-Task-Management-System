@@ -1,4 +1,4 @@
-import { GoogleAuthProvider, getRedirectResult, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, getRedirectResult, signInWithRedirect } from "firebase/auth";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { firebaseAuth, googleProvider, isFirebaseConfigured } from "../config/firebase";
@@ -43,31 +43,10 @@ export default function GoogleAuthButton({ onSuccess, onError, label = "Continue
 
     setLoading(true);
     try {
-      // Try popup first; fall back to redirect if COOP blocks it
-      const result = await signInWithPopup(firebaseAuth, googleProvider);
-      const { displayName, email, photoURL, uid } = result.user;
-
-      if (!email) {
-        throw new Error("Your Google account did not share an email address");
-      }
-
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const googleAccessToken = credential?.accessToken || null;
-
-      await onSuccess({
-        name: displayName || email.split("@")[0],
-        email,
-        avatar: photoURL || "",
-        accessToken: googleAccessToken,
-        firebaseUid: uid
-      });
+      await signInWithRedirect(firebaseAuth, googleProvider);
     } catch (error) {
-      // If popup is blocked by COOP or browser, the error will surface here.
-      // Common COOP-related codes: auth/popup-blocked, auth/popup-closed-by-user
       const messages = {
-        "auth/popup-closed-by-user": "Google sign-in popup was closed",
         "auth/cancelled-popup-request": "Google sign-in was cancelled",
-        "auth/popup-blocked": "Google sign-in popup was blocked by the browser",
         "auth/network-request-failed": "Network error while signing in with Google",
         "auth/unauthorized-domain": "This domain is not authorized for Firebase Google sign-in",
         "auth/account-exists-with-different-credential": "An account already exists with a different sign-in method"
@@ -113,4 +92,3 @@ export default function GoogleAuthButton({ onSuccess, onError, label = "Continue
     </button>
   );
 }
-
