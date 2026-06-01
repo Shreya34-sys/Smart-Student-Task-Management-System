@@ -49,15 +49,44 @@ export const sendInvite = asyncHandler(async (req, res) => {
   });
 
   const acceptUrl = `${env.clientUrl.split(",")[0]}/invite/${invite.token}`;
-  await sendInviteEmail({
-    to: email,
-    senderName: req.user.name,
-    teamName: team.name,
-    acceptUrl
-  });
   await logActivity({ actor: req.user._id, action: "sent_team_invite", entityType: "team", entityId: team._id, metadata: { email } });
 
-  res.status(201).json({ success: true, message: "Invite sent", invite: { id: invite._id, email: invite.email, status: invite.status, expiresAt: invite.expiresAt } });
+  let emailResult;
+  try {
+    emailResult = await sendInviteEmail({
+      to: email,
+      senderName: req.user.name,
+      teamName: team.name,
+      acceptUrl
+    });
+  } catch (error) {
+    console.error(`Invite email failed for ${email}:`, error);
+    return res.status(202).json({
+      success: true,
+      message: "Invite created, but email could not be sent. Share the invite link manually.",
+      emailSent: false,
+      emailError: error.message,
+      acceptUrl,
+      invite: { id: invite._id, email: invite.email, status: invite.status, expiresAt: invite.expiresAt }
+    });
+  }
+
+  if (emailResult?.skipped) {
+    return res.status(202).json({
+      success: true,
+      message: "Invite created, but SMTP email is not configured. Share the invite link manually.",
+      emailSent: false,
+      acceptUrl,
+      invite: { id: invite._id, email: invite.email, status: invite.status, expiresAt: invite.expiresAt }
+    });
+  }
+
+  res.status(201).json({
+    success: true,
+    message: "Invite email sent",
+    emailSent: true,
+    invite: { id: invite._id, email: invite.email, status: invite.status, expiresAt: invite.expiresAt }
+  });
 });
 
 export const getInvite = asyncHandler(async (req, res) => {
