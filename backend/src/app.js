@@ -8,11 +8,16 @@ import { logger } from "./middleware/logger.js";
 import { apiLimiter } from "./middleware/rateLimiter.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 import assistantRoutes from "./routes/assistantRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import externalRoutes from "./routes/externalRoutes.js";
 import inviteRoutes from "./routes/inviteRoutes.js";
+import noteRoutes from "./routes/noteRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import pomodoroRoutes from "./routes/pomodoroRoutes.js";
 import teamRoutes from "./routes/teamRoutes.js";
+import timetableRoutes from "./routes/timetableRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 
 const app = express();
@@ -40,12 +45,17 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/analytics", analyticsRoutes);
 app.use("/api/external", externalRoutes);
 app.use("/api/invites", inviteRoutes);
+app.use("/api/notes", noteRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/pomodoro", pomodoroRoutes);
 app.use("/api/activity", activityRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/assistant", assistantRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/timetable", timetableRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
