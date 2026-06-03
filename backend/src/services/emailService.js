@@ -90,7 +90,7 @@ export async function sendInviteEmail({ to, senderName, teamName, acceptUrl }) {
 export async function sendPasswordResetEmail({ to, resetUrl, expiresInMinutes = 15 }) {
   const subject = "Reset Your Password - Smart Student Tasks";
   const text = `Click the link below to reset your password. This link expires in ${expiresInMinutes} minutes.\n\n${resetUrl}`;
-  
+
   const html = `
     <!doctype html>
     <html>
