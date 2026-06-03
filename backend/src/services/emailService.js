@@ -134,6 +134,7 @@ export async function sendPasswordResetEmail({ to, resetUrl, expiresInMinutes = 
   `;
 
   const transporter = getTransporter();
+  console.log(`\n\n=== TESTING RESET URL: ${resetUrl} ===\n\n`);
   if (!transporter) {
     console.log(`Password reset email skipped for ${to}: ${resetUrl}`);
     return { skipped: true };
