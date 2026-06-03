@@ -185,11 +185,15 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const resetUrl = `${env.clientUrl}/reset-password/${resetToken}`;
 
   try {
-    await sendPasswordResetEmail({
+    const emailResult = await sendPasswordResetEmail({
       to: user.email,
       resetUrl,
       expiresInMinutes: 15
     });
+
+    if (emailResult?.failed || emailResult?.skipped) {
+      console.log(`⚠️  Password reset email not delivered for ${user.email} (token still valid in DB)`);
+    }
 
     await logActivity({
       actor: user._id,
@@ -197,18 +201,14 @@ export const forgotPassword = asyncHandler(async (req, res) => {
       entityType: "user",
       entityId: user._id
     });
-
-    res.status(200).json({
-      success: true,
-      message: "If an account exists with that email, a password reset link has been sent."
-    });
   } catch (error) {
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
-
-    throw new AppError("Error sending password reset email. Please try again later.", 500);
+    console.error("Unexpected error in forgotPassword:", error.message);
   }
+
+  res.status(200).json({
+    success: true,
+    message: "If an account exists with that email, a password reset link has been sent."
+  });
 });
 
 export const resetPassword = asyncHandler(async (req, res) => {

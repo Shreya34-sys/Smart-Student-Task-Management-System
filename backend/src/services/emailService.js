@@ -133,18 +133,27 @@ export async function sendPasswordResetEmail({ to, resetUrl, expiresInMinutes = 
     </html>
   `;
 
+  console.log(`\n🔗 Password reset URL for ${to}: ${resetUrl}\n`);
+
   const transporter = getTransporter();
-  console.log(`\n\n=== TESTING RESET URL: ${resetUrl} ===\n\n`);
   if (!transporter) {
-    console.log(`Password reset email skipped for ${to}: ${resetUrl}`);
+    console.log(`⚠️  Email skipped (SMTP not configured). Use the URL above to reset.`);
     return { skipped: true };
   }
 
-  return transporter.sendMail({
-    from: env.smtp.from,
-    to,
-    subject,
-    text,
-    html
-  });
+  try {
+    const info = await transporter.sendMail({
+      from: env.smtp.from,
+      to,
+      subject,
+      text,
+      html
+    });
+    console.log(`✅ Password reset email sent to ${to}`);
+    return info;
+  } catch (err) {
+    console.error(`⚠️  Failed to send reset email to ${to}: ${err.message}`);
+    console.log(`   Use the reset URL above to test manually.`);
+    return { failed: true, error: err.message };
+  }
 }
